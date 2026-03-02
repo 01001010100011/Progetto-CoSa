@@ -1,9 +1,18 @@
-const revealItems = document.querySelectorAll(
-  ".hero-copy > *, .hero-panel > *, .section-title, .missione-grid article, .azioni-cards .card, .rete-item, .numero, .footer-inner > *"
+const revealElements = document.querySelectorAll('.reveal');
+
+const observer = new IntersectionObserver(
+  (entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('show');
+        observer.unobserve(entry.target);
+      }
+    });
+  },
+  {
+    threshold: 0.16,
+    rootMargin: '0px 0px -40px 0px',
+  }
 );
 
-revealItems.forEach((item, index) => {
-  item.classList.add("reveal");
-  const delay = index % 4;
-  item.classList.add(`delay-${delay}`);
-});
+revealElements.forEach((el) => observer.observe(el));
