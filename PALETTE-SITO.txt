@@ -1,0 +1,25 @@
+PALETTE PROGETTO COSA
+
+Principale
+Coral / Peach
+#ED9F89
+
+Secondario
+Verde salvia
+#89A996
+
+Accento
+Lilla morbido
+#C5B7E3
+
+Sfondo
+Bianco caldo
+#FDF7F5
+
+Card / sezioni
+Beige chiaro
+#F4E6E0
+
+Testo
+Grigio antracite
+#333333
