@@ -28,7 +28,8 @@ if (reelsFeed) {
   const scrollAnimDurationMs = 300;
   const wheelStepThreshold = 64;
   const touchThreshold = 75;
-  const scrollHintVisibleMs = 3300;
+  const scrollHintVisibleMs = 2500;
+  const scrollHintExitMs = 240;
 
   const slides = Array.from(reelsFeed.querySelectorAll('.reel-slide'));
   const videos = slides.map((slide) => slide.querySelector('.reel-video'));
@@ -135,7 +136,13 @@ if (reelsFeed) {
     if (!scrollHint) return;
     if (hintShowTimer) window.clearTimeout(hintShowTimer);
     if (hintHideTimer) window.clearTimeout(hintHideTimer);
+    if (!scrollHint.classList.contains('is-visible')) return;
+
     scrollHint.classList.remove('is-visible');
+    scrollHint.classList.add('is-hiding');
+    hintHideTimer = window.setTimeout(() => {
+      scrollHint.classList.remove('is-hiding');
+    }, scrollHintExitMs);
   };
 
   const maybeShowScrollHint = () => {
@@ -144,6 +151,7 @@ if (reelsFeed) {
     if (hintHideTimer) window.clearTimeout(hintHideTimer);
 
     hintShowTimer = window.setTimeout(() => {
+      scrollHint.classList.remove('is-hiding');
       scrollHint.classList.add('is-visible');
       hintHideTimer = window.setTimeout(() => {
         hideScrollHint();

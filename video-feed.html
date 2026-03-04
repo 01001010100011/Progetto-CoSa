@@ -52,9 +52,13 @@
           preload="auto"
         ></video>
         <div class="scroll-hint" data-scroll-hint aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" role="presentation">
-            <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
-          </svg>
+          <div class="scroll-hint-backdrop"></div>
+          <div class="scroll-hint-content">
+            <svg class="scroll-hint-arrow" viewBox="0 0 24 24" fill="none" role="presentation">
+              <path d="M12 4v14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"></path>
+              <path d="M6.5 12.5L12 18l5.5-5.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+          </div>
         </div>
         <div class="video-feedback" data-playback-feedback aria-hidden="true">
           <svg
