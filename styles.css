@@ -260,6 +260,9 @@ h3 {
 .video-page {
   background: #000;
   overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
 }
 
 .video-viewer-root,
@@ -360,6 +363,18 @@ h3 {
   width: 100%;
   object-fit: cover;
   background: #111;
+}
+
+/* Desktop viewer: keep a centered vertical 9:16 stage with black side gutters. */
+@media (min-width: 900px) {
+  .reels-app {
+    width: min(calc(100dvh * 9 / 16), 100vw);
+    max-width: calc(100dvh * 9 / 16);
+  }
+
+  .reel-slide {
+    width: 100%;
+  }
 }
 
 .step {

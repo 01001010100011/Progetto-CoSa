@@ -34,6 +34,7 @@ if (reelsFeed) {
   let activeIndex = 0;
   let isInputLocked = false;
   let touchStartY = null;
+  let tapStartPoint = null;
   let scrollEndTimer = null;
 
   const clampIndex = (index) => Math.max(0, Math.min(index, slides.length - 1));
@@ -153,6 +154,43 @@ if (reelsFeed) {
 
     const step = deltaY > 0 ? 1 : -1;
     scrollToIndex(activeIndex + step, true, true);
+  });
+
+  slides.forEach((slide, index) => {
+    slide.addEventListener('pointerdown', (event) => {
+      tapStartPoint = { x: event.clientX, y: event.clientY, index };
+    });
+
+    slide.addEventListener('pointerup', (event) => {
+      if (!tapStartPoint) return;
+
+      const deltaX = Math.abs(event.clientX - tapStartPoint.x);
+      const deltaY = Math.abs(event.clientY - tapStartPoint.y);
+      const isTap = deltaX < 10 && deltaY < 10;
+
+      if (!isTap || tapStartPoint.index !== activeIndex) {
+        tapStartPoint = null;
+        return;
+      }
+
+      const video = videos[activeIndex];
+      if (!video) {
+        tapStartPoint = null;
+        return;
+      }
+
+      if (video.paused) {
+        video.play().catch(() => {});
+      } else {
+        video.pause();
+      }
+
+      tapStartPoint = null;
+    });
+
+    slide.addEventListener('pointercancel', () => {
+      tapStartPoint = null;
+    });
   });
 
   reelsFeed.addEventListener('scroll', () => {
