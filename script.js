@@ -24,10 +24,10 @@ const reelsFeed = document.querySelector('[data-reels-feed]');
 
 if (reelsFeed) {
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const cooldownMs = 520;
-  const scrollAnimDurationMs = 300;
-  const wheelThreshold = 18;
-  const touchThreshold = 60;
+  const cooldownMs = 620;
+  const scrollAnimDurationMs = 290;
+  const wheelStepThreshold = 64;
+  const touchThreshold = 75;
 
   const slides = Array.from(reelsFeed.querySelectorAll('.reel-slide'));
   const videos = slides.map((slide) => slide.querySelector('.reel-video'));
@@ -35,17 +35,18 @@ if (reelsFeed) {
   const audioToggle = document.querySelector('[data-audio-toggle]');
 
   let activeIndex = 0;
-  let isInputLocked = false;
+  let isCooldown = false;
+  let isAnimating = false;
   let touchStartY = null;
   let tapStartPoint = null;
-  let scrollEndTimer = null;
   let feedbackTimer = null;
   let scrollAnimRafId = null;
-  let isProgrammaticScroll = false;
+  let wheelDeltaAccumulator = 0;
+  let lastWheelTime = 0;
+  let viewportHeight = reelsFeed.clientHeight || window.innerHeight;
   let isSoundOn = false;
 
   const clampIndex = (index) => Math.max(0, Math.min(index, slides.length - 1));
-  const viewportHeight = () => reelsFeed.clientHeight || window.innerHeight;
 
   // Keep network usage light by prioritizing only current and next video.
   const updatePreload = () => {
@@ -106,25 +107,25 @@ if (reelsFeed) {
   };
 
   const lockInput = () => {
-    isInputLocked = true;
+    isCooldown = true;
     window.setTimeout(() => {
-      isInputLocked = false;
+      isCooldown = false;
     }, cooldownMs);
   };
 
-  const cancelProgrammaticAnimation = () => {
+  const cancelAnimation = () => {
     if (scrollAnimRafId !== null) {
       window.cancelAnimationFrame(scrollAnimRafId);
       scrollAnimRafId = null;
     }
-    isProgrammaticScroll = false;
+    isAnimating = false;
   };
 
-  // Easing close to app-like behavior: quick start and gentle settle.
+  // App-like curve: immediate start and soft settle.
   const easeOutAppLike = (t) => 1 - Math.pow(1 - t, 3);
 
   const animateScrollTo = (targetTop, durationMs) => {
-    cancelProgrammaticAnimation();
+    cancelAnimation();
 
     const startTop = reelsFeed.scrollTop;
     const distance = targetTop - startTop;
@@ -134,7 +135,7 @@ if (reelsFeed) {
     }
 
     const startTime = performance.now();
-    isProgrammaticScroll = true;
+    isAnimating = true;
 
     const tick = (now) => {
       const elapsed = now - startTime;
@@ -148,39 +149,38 @@ if (reelsFeed) {
 
       reelsFeed.scrollTop = targetTop;
       scrollAnimRafId = null;
-      isProgrammaticScroll = false;
+      isAnimating = false;
     };
 
     scrollAnimRafId = window.requestAnimationFrame(tick);
   };
 
-  const scrollToIndex = (index, smooth = true, shouldLock = false) => {
-    activeIndex = clampIndex(index);
-    const targetTop = activeIndex * viewportHeight();
+  const goToIndex = (nextIndex, animated = true) => {
+    activeIndex = clampIndex(nextIndex);
+    const targetTop = activeIndex * viewportHeight;
 
-    if (reduceMotion || !smooth) {
-      cancelProgrammaticAnimation();
+    if (reduceMotion || !animated) {
+      cancelAnimation();
       reelsFeed.scrollTop = targetTop;
     } else {
       animateScrollTo(targetTop, scrollAnimDurationMs);
     }
 
     updatePreload();
-
-    if (shouldLock) lockInput();
   };
 
-  const snapToNearest = (smooth = true) => {
-    const nearest = clampIndex(Math.round(reelsFeed.scrollTop / viewportHeight()));
-    const targetTop = nearest * viewportHeight();
-    const isAlreadyAligned = Math.abs(reelsFeed.scrollTop - targetTop) < 1;
-    if (nearest !== activeIndex) activeIndex = nearest;
-    if (isAlreadyAligned) return;
-    scrollToIndex(nearest, smooth, false);
+  const stepTo = (step) => {
+    if (isAnimating || isCooldown) return;
+    const targetIndex = clampIndex(activeIndex + step);
+    if (targetIndex === activeIndex) return;
+    goToIndex(targetIndex, true);
+    lockInput();
   };
 
   const observer = new IntersectionObserver(
     (entries) => {
+      if (isAnimating) return;
+
       let bestVisible = null;
 
       entries.forEach((entry) => {
@@ -213,23 +213,41 @@ if (reelsFeed) {
   slides.forEach((slide) => observer.observe(slide));
 
   const handleWheelStep = (event) => {
-    if (Math.abs(event.deltaY) < wheelThreshold) return;
-    event.preventDefault();
-    if (isInputLocked) return;
+    const now = performance.now();
+    if (now - lastWheelTime > 180) wheelDeltaAccumulator = 0;
+    lastWheelTime = now;
 
-    const step = event.deltaY > 0 ? 1 : -1;
-    scrollToIndex(activeIndex + step, true, true);
+    wheelDeltaAccumulator += event.deltaY;
+
+    if (Math.abs(wheelDeltaAccumulator) < wheelStepThreshold) {
+      event.preventDefault();
+      return;
+    }
+
+    event.preventDefault();
+    const step = wheelDeltaAccumulator > 0 ? 1 : -1;
+    wheelDeltaAccumulator = 0;
+    stepTo(step);
   };
 
   // Global wheel listener allows step-scroll even when pointer is on side black areas.
   window.addEventListener('wheel', handleWheelStep, { passive: false });
 
   reelsFeed.addEventListener('touchstart', (event) => {
+    if (isAnimating) return;
     touchStartY = event.changedTouches[0].clientY;
   });
 
+  reelsFeed.addEventListener(
+    'touchmove',
+    (event) => {
+      if (!isAnimating) event.preventDefault();
+    },
+    { passive: false }
+  );
+
   reelsFeed.addEventListener('touchend', (event) => {
-    if (touchStartY === null || isInputLocked) {
+    if (touchStartY === null || isAnimating || isCooldown) {
       touchStartY = null;
       return;
     }
@@ -238,12 +256,10 @@ if (reelsFeed) {
     touchStartY = null;
 
     if (Math.abs(deltaY) < touchThreshold) {
-      snapToNearest(false);
       return;
     }
 
-    const step = deltaY > 0 ? 1 : -1;
-    scrollToIndex(activeIndex + step, true, true);
+    stepTo(deltaY > 0 ? 1 : -1);
   });
 
   slides.forEach((slide, index) => {
@@ -285,32 +301,23 @@ if (reelsFeed) {
     });
   });
 
-  reelsFeed.addEventListener('scroll', () => {
-    if (isProgrammaticScroll) return;
-    if (scrollEndTimer) window.clearTimeout(scrollEndTimer);
-
-    // Force final alignment to one slide so user can't stop between videos.
-    scrollEndTimer = window.setTimeout(() => {
-      snapToNearest(false);
-    }, 120);
-  });
-
   window.addEventListener('keydown', (event) => {
-    if (isInputLocked) return;
+    if (isAnimating || isCooldown) return;
 
     if (event.key === 'ArrowDown' || event.key === 'PageDown') {
       event.preventDefault();
-      scrollToIndex(activeIndex + 1, true, true);
+      stepTo(1);
     }
 
     if (event.key === 'ArrowUp' || event.key === 'PageUp') {
       event.preventDefault();
-      scrollToIndex(activeIndex - 1, true, true);
+      stepTo(-1);
     }
   });
 
   window.addEventListener('resize', () => {
-    scrollToIndex(activeIndex, false, false);
+    viewportHeight = reelsFeed.clientHeight || window.innerHeight;
+    goToIndex(activeIndex, false);
   });
 
   if (audioToggle) {
@@ -327,6 +334,6 @@ if (reelsFeed) {
   }
 
   updateAudioToggleUi();
-  scrollToIndex(0, false, false);
+  goToIndex(0, false);
   syncPlayback();
 }
