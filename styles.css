@@ -320,6 +320,36 @@ h3 {
   justify-content: center;
 }
 
+.video-audio-toggle {
+  pointer-events: auto;
+  min-width: 44px;
+  min-height: 44px;
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 999px;
+  color: #fff;
+  cursor: pointer;
+}
+
+.audio-icon {
+  width: 21px;
+  height: 21px;
+  display: none;
+}
+
+.video-audio-toggle.is-muted .icon-muted {
+  display: block;
+}
+
+.video-audio-toggle.is-unmuted .icon-unmuted {
+  display: block;
+}
+
 .video-title {
   position: absolute;
   left: 50%;

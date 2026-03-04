@@ -22,7 +22,22 @@
         <a class="video-home" href="index.html">Home</a>
       </div>
       <p class="video-title">Video</p>
-      <div class="video-topbar-right" aria-hidden="true"></div>
+      <div class="video-topbar-right">
+        <button
+          class="video-audio-toggle is-muted"
+          type="button"
+          data-audio-toggle
+          aria-label="Attiva audio"
+          aria-pressed="false"
+        >
+          <svg class="audio-icon icon-muted" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M14 5v14l-6-4H4V9h4zm3.59 7 2.7 2.7-1.42 1.41-2.7-2.7-2.7 2.7-1.41-1.41 2.7-2.7-2.7-2.7 1.41-1.41 2.7 2.7 2.7-2.7 1.42 1.41z"></path>
+          </svg>
+          <svg class="audio-icon icon-unmuted" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M14 5v14l-6-4H4V9h4zM16.5 8.5a1 1 0 0 1 1.4 0A5 5 0 0 1 19.5 12a5 5 0 0 1-1.6 3.5 1 1 0 1 1-1.4-1.4 3 3 0 0 0 0-4.2 1 1 0 0 1 0-1.4zm2.9-2.9a1 1 0 0 1 1.4 0A9 9 0 0 1 23.5 12a9 9 0 0 1-2.7 6.4 1 1 0 1 1-1.4-1.4 7 7 0 0 0 0-9.9 1 1 0 0 1 0-1.4z"></path>
+          </svg>
+        </button>
+      </div>
     </header>
 
     <main class="reels-app" data-reels-feed tabindex="0" aria-label="Feed video verticale">

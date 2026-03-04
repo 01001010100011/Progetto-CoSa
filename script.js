@@ -31,6 +31,7 @@ if (reelsFeed) {
   const slides = Array.from(reelsFeed.querySelectorAll('.reel-slide'));
   const videos = slides.map((slide) => slide.querySelector('.reel-video'));
   const feedbackOverlays = slides.map((slide) => slide.querySelector('[data-playback-feedback]'));
+  const audioToggle = document.querySelector('[data-audio-toggle]');
 
   let activeIndex = 0;
   let isInputLocked = false;
@@ -38,6 +39,7 @@ if (reelsFeed) {
   let tapStartPoint = null;
   let scrollEndTimer = null;
   let feedbackTimer = null;
+  let isSoundOn = false;
 
   const clampIndex = (index) => Math.max(0, Math.min(index, slides.length - 1));
   const viewportHeight = () => reelsFeed.clientHeight || window.innerHeight;
@@ -50,11 +52,32 @@ if (reelsFeed) {
     });
   };
 
+  const applyAudioState = () => {
+    videos.forEach((video, index) => {
+      if (!video) return;
+      // Keep autoplay compatibility: default muted until explicit user gesture.
+      const shouldUnmute = isSoundOn && index === activeIndex;
+      video.muted = !shouldUnmute;
+      if (shouldUnmute) video.volume = 1;
+    });
+  };
+
+  const updateAudioToggleUi = () => {
+    if (!audioToggle) return;
+    audioToggle.classList.toggle('is-unmuted', isSoundOn);
+    audioToggle.classList.toggle('is-muted', !isSoundOn);
+    audioToggle.setAttribute('aria-pressed', String(isSoundOn));
+    audioToggle.setAttribute('aria-label', isSoundOn ? 'Disattiva audio' : 'Attiva audio');
+  };
+
   const syncPlayback = () => {
+    applyAudioState();
     videos.forEach((video, index) => {
       if (!video) return;
       if (index === activeIndex) {
-        video.play().catch(() => {});
+        video.play().catch(() => {
+          // If unmuted play is rejected, keep state and wait for next user gesture.
+        });
       } else {
         video.pause();
       }
@@ -242,6 +265,20 @@ if (reelsFeed) {
     scrollToIndex(activeIndex, false, false);
   });
 
+  if (audioToggle) {
+    audioToggle.addEventListener('click', () => {
+      isSoundOn = !isSoundOn;
+      updateAudioToggleUi();
+      applyAudioState();
+
+      const activeVideo = videos[activeIndex];
+      if (activeVideo && isSoundOn) {
+        activeVideo.play().catch(() => {});
+      }
+    });
+  }
+
+  updateAudioToggleUi();
   scrollToIndex(0, false, false);
   syncPlayback();
 }
