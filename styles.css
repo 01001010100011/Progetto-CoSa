@@ -262,7 +262,7 @@ h3 {
   overflow: hidden;
   display: flex;
   justify-content: center;
-  align-items: flex-start;
+  align-items: center;
 }
 
 .video-viewer-root,
@@ -331,6 +331,7 @@ h3 {
 }
 
 .reels-app {
+  position: relative;
   height: 100vh;
   height: 100dvh;
   width: 100vw;
@@ -365,9 +366,61 @@ h3 {
   background: #111;
 }
 
+.video-feedback {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.8);
+  z-index: 20;
+  width: 76px;
+  height: 76px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  color: #fff;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.video-feedback.show {
+  animation: feedback-pop 700ms ease forwards;
+}
+
+.video-feedback-icon {
+  width: 34px;
+  height: 34px;
+  display: none;
+}
+
+.video-feedback.play .icon-play {
+  display: block;
+}
+
+.video-feedback.pause .icon-pause {
+  display: block;
+}
+
+@keyframes feedback-pop {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.75);
+  }
+  20% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.05);
+  }
+}
+
 /* Desktop viewer: keep a centered vertical 9:16 stage with black side gutters. */
 @media (min-width: 900px) {
   .reels-app {
+    aspect-ratio: 9 / 16;
     width: min(calc(100dvh * 9 / 16), 100vw);
     max-width: calc(100dvh * 9 / 16);
   }

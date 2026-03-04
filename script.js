@@ -30,12 +30,14 @@ if (reelsFeed) {
 
   const slides = Array.from(reelsFeed.querySelectorAll('.reel-slide'));
   const videos = slides.map((slide) => slide.querySelector('.reel-video'));
+  const feedback = document.querySelector('[data-playback-feedback]');
 
   let activeIndex = 0;
   let isInputLocked = false;
   let touchStartY = null;
   let tapStartPoint = null;
   let scrollEndTimer = null;
+  let feedbackTimer = null;
 
   const clampIndex = (index) => Math.max(0, Math.min(index, slides.length - 1));
   const viewportHeight = () => reelsFeed.clientHeight || window.innerHeight;
@@ -57,6 +59,20 @@ if (reelsFeed) {
         video.pause();
       }
     });
+  };
+
+  const showPlaybackFeedback = (mode) => {
+    if (!feedback) return;
+
+    feedback.classList.remove('play', 'pause', 'show');
+    // Force reflow so the animation restarts on every tap.
+    void feedback.offsetWidth;
+    feedback.classList.add(mode, 'show');
+
+    if (feedbackTimer) window.clearTimeout(feedbackTimer);
+    feedbackTimer = window.setTimeout(() => {
+      feedback.classList.remove('show');
+    }, 720);
   };
 
   const lockInput = () => {
@@ -181,8 +197,10 @@ if (reelsFeed) {
 
       if (video.paused) {
         video.play().catch(() => {});
+        showPlaybackFeedback('pause');
       } else {
         video.pause();
+        showPlaybackFeedback('play');
       }
 
       tapStartPoint = null;
