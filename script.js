@@ -163,19 +163,17 @@ if (reelsFeed) {
 
   slides.forEach((slide) => observer.observe(slide));
 
-  reelsFeed.addEventListener(
-    'wheel',
-    (event) => {
-      if (Math.abs(event.deltaY) < wheelThreshold) return;
+  const handleWheelStep = (event) => {
+    if (Math.abs(event.deltaY) < wheelThreshold) return;
+    event.preventDefault();
+    if (isInputLocked) return;
 
-      event.preventDefault();
-      if (isInputLocked) return;
+    const step = event.deltaY > 0 ? 1 : -1;
+    scrollToIndex(activeIndex + step, true, true);
+  };
 
-      const step = event.deltaY > 0 ? 1 : -1;
-      scrollToIndex(activeIndex + step, true, true);
-    },
-    { passive: false }
-  );
+  // Global wheel listener allows step-scroll even when pointer is on side black areas.
+  window.addEventListener('wheel', handleWheelStep, { passive: false });
 
   reelsFeed.addEventListener('touchstart', (event) => {
     touchStartY = event.changedTouches[0].clientY;
