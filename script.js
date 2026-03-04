@@ -30,7 +30,7 @@ if (reelsFeed) {
 
   const slides = Array.from(reelsFeed.querySelectorAll('.reel-slide'));
   const videos = slides.map((slide) => slide.querySelector('.reel-video'));
-  const feedback = document.querySelector('[data-playback-feedback]');
+  const feedbackOverlays = slides.map((slide) => slide.querySelector('[data-playback-feedback]'));
 
   let activeIndex = 0;
   let isInputLocked = false;
@@ -61,10 +61,14 @@ if (reelsFeed) {
     });
   };
 
-  const showPlaybackFeedback = (mode) => {
+  const showPlaybackFeedback = (mode, index = activeIndex) => {
+    const feedback = feedbackOverlays[index];
     if (!feedback) return;
 
-    feedback.classList.remove('play', 'pause', 'show');
+    feedbackOverlays.forEach((overlay) => {
+      if (overlay) overlay.classList.remove('play', 'pause', 'show');
+    });
+
     // Force reflow so the animation restarts on every tap.
     void feedback.offsetWidth;
     feedback.classList.add(mode, 'show');
@@ -197,10 +201,10 @@ if (reelsFeed) {
 
       if (video.paused) {
         video.play().catch(() => {});
-        showPlaybackFeedback('pause');
+        showPlaybackFeedback('pause', activeIndex);
       } else {
         video.pause();
-        showPlaybackFeedback('play');
+        showPlaybackFeedback('play', activeIndex);
       }
 
       tapStartPoint = null;

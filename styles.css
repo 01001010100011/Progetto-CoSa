@@ -351,6 +351,7 @@ h3 {
 
 .reel-slide {
   position: relative;
+  isolation: isolate;
   height: 100vh;
   height: 100dvh;
   width: 100vw;
@@ -360,6 +361,8 @@ h3 {
 }
 
 .reel-video {
+  position: relative;
+  z-index: 1;
   height: 100%;
   width: 100%;
   object-fit: cover;
@@ -371,7 +374,7 @@ h3 {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%) scale(0.8);
-  z-index: 20;
+  z-index: 100;
   width: 76px;
   height: 76px;
   border-radius: 999px;
