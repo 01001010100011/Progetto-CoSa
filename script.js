@@ -25,7 +25,7 @@ const reelsFeed = document.querySelector('[data-reels-feed]');
 if (reelsFeed) {
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const cooldownMs = 620;
-  const scrollAnimDurationMs = 240;
+  const scrollAnimDurationMs = 300;
   const wheelStepThreshold = 64;
   const touchThreshold = 75;
   const scrollHintStorageKey = 'videoViewerScrollHintShown';
@@ -75,6 +75,19 @@ if (reelsFeed) {
       const shouldUnmute = isSoundOn && index === activeIndex;
       video.muted = !shouldUnmute;
       if (shouldUnmute) video.volume = 1;
+    });
+  };
+
+  const ensureActiveVideoPlays = () => {
+    const activeVideo = videos[activeIndex];
+    if (!activeVideo) return;
+    applyAudioState();
+    videos.forEach((video, index) => {
+      if (!video) return;
+      if (index !== activeIndex) video.pause();
+    });
+    activeVideo.play().catch(() => {
+      // Keep UI responsive even when autoplay policies block playback.
     });
   };
 
@@ -150,8 +163,12 @@ if (reelsFeed) {
       scrollHint.classList.add('is-visible');
       hintHideTimer = window.setTimeout(() => {
         hideScrollHint(true);
-      }, 1200);
+      }, 2000);
     }, 300);
+  };
+
+  const setSnapEnabled = (enabled) => {
+    reelsFeed.style.scrollSnapType = enabled ? 'y mandatory' : 'none';
   };
 
   const cancelAnimation = () => {
@@ -160,6 +177,7 @@ if (reelsFeed) {
       scrollAnimRafId = null;
     }
     isAnimating = false;
+    setSnapEnabled(true);
   };
 
   // App-like curve: immediate start and soft settle.
@@ -172,11 +190,13 @@ if (reelsFeed) {
     const distance = targetTop - startTop;
     if (Math.abs(distance) < 1) {
       reelsFeed.scrollTop = targetTop;
+      ensureActiveVideoPlays();
       return;
     }
 
     const startTime = performance.now();
     isAnimating = true;
+    setSnapEnabled(false);
 
     const tick = (now) => {
       const elapsed = now - startTime;
@@ -191,6 +211,8 @@ if (reelsFeed) {
       reelsFeed.scrollTop = targetTop;
       scrollAnimRafId = null;
       isAnimating = false;
+      setSnapEnabled(true);
+      ensureActiveVideoPlays();
     };
 
     scrollAnimRafId = window.requestAnimationFrame(tick);
@@ -203,6 +225,7 @@ if (reelsFeed) {
     if (reduceMotion || !animated) {
       cancelAnimation();
       reelsFeed.scrollTop = targetTop;
+      ensureActiveVideoPlays();
     } else {
       animateScrollTo(targetTop, scrollAnimDurationMs);
     }
@@ -382,5 +405,5 @@ if (reelsFeed) {
   updateAudioToggleUi();
   goToIndex(0, false);
   maybeShowScrollHint();
-  syncPlayback();
+  ensureActiveVideoPlays();
 }

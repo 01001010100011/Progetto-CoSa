@@ -438,29 +438,25 @@ h3 {
 
 .scroll-hint {
   position: absolute;
-  left: 50%;
-  bottom: calc(22px + env(safe-area-inset-bottom));
-  transform: translateX(-50%);
-  z-index: 30;
-  width: 44px;
-  height: 44px;
-  border-radius: 999px;
-  display: grid;
-  place-items: center;
+  inset: 0;
+  z-index: 120;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: #fff;
-  background: rgba(0, 0, 0, 0.35);
-  border: 1px solid rgba(255, 255, 255, 0.28);
   opacity: 0;
   pointer-events: none;
 }
 
 .scroll-hint svg {
-  width: 22px;
-  height: 22px;
+  width: 140px;
+  height: 140px;
+  filter: drop-shadow(0 6px 22px rgba(0, 0, 0, 0.55));
+  stroke-width: 1.6;
 }
 
 .scroll-hint.is-visible {
-  animation: scroll-hint-pop 1200ms ease-out forwards;
+  animation: scroll-hint-pop 2000ms ease-out forwards;
 }
 
 @keyframes feedback-pop {
@@ -481,23 +477,23 @@ h3 {
 @keyframes scroll-hint-pop {
   0% {
     opacity: 0;
-    transform: translateX(-50%) translateY(-3px);
+    transform: translateY(-10px) scale(0.92);
   }
-  15% {
+  12% {
     opacity: 1;
-    transform: translateX(-50%) translateY(0);
+    transform: translateY(0) scale(1);
   }
   45% {
     opacity: 1;
-    transform: translateX(-50%) translateY(4px);
+    transform: translateY(16px) scale(1.03);
   }
   70% {
     opacity: 1;
-    transform: translateX(-50%) translateY(0);
+    transform: translateY(4px) scale(1);
   }
   100% {
     opacity: 0;
-    transform: translateX(-50%) translateY(-1px);
+    transform: translateY(-4px) scale(0.96);
   }
 }
 
