@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Progetto CoSa | Video Feed</title>
+    <meta
+      name="description"
+      content="Feed video verticale in formato 9:16 per i contenuti del Progetto CoSa."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="bg-shape bg-shape-1" aria-hidden="true"></div>
+    <div class="bg-shape bg-shape-2" aria-hidden="true"></div>
+
+    <header class="site-header">
+      <nav class="container nav">
+        <a class="brand" href="index.html#home">Progetto CoSa</a>
+        <div class="nav-links">
+          <a href="index.html#chi-siamo">Chi siamo</a>
+          <a href="index.html#servizi">Servizi</a>
+          <a href="index.html#percorso">Percorso</a>
+          <a href="video-feed.html">Video</a>
+          <a href="index.html#contatti">Contatti</a>
+        </div>
+      </nav>
+    </header>
+
+    <main>
+      <section id="video-feed" class="section reel-section">
+        <div class="container">
+          <div class="section-header reveal">
+            <p class="eyebrow">Video Feed</p>
+            <h2>Contenuti brevi in stile TikTok (video di prova).</h2>
+          </div>
+
+          <div class="reel-shell reveal">
+            <div class="reels-feed">
+              <article class="reel-item">
+                <video
+                  class="reel-video"
+                  src="https://videos.pexels.com/video-files/6954409/6954409-hd_1080_1920_25fps.mp4"
+                  muted
+                  loop
+                  playsinline
+                  controls
+                  preload="metadata"
+                ></video>
+                <p class="reel-caption">Respirazione guidata - test video 1</p>
+              </article>
+
+              <article class="reel-item">
+                <video
+                  class="reel-video"
+                  src="https://videos.pexels.com/video-files/6383482/6383482-hd_1080_1920_25fps.mp4"
+                  muted
+                  loop
+                  playsinline
+                  controls
+                  preload="metadata"
+                ></video>
+                <p class="reel-caption">Routine dolce quotidiana - test video 2</p>
+              </article>
+
+              <article class="reel-item">
+                <video
+                  class="reel-video"
+                  src="https://videos.pexels.com/video-files/4073250/4073250-hd_1080_1920_25fps.mp4"
+                  muted
+                  loop
+                  playsinline
+                  controls
+                  preload="metadata"
+                ></video>
+                <p class="reel-caption">Pausa consapevole - test video 3</p>
+              </article>
+
+              <article class="reel-item">
+                <video
+                  class="reel-video"
+                  src="https://videos.pexels.com/video-files/5547464/5547464-hd_1080_1920_25fps.mp4"
+                  muted
+                  loop
+                  playsinline
+                  controls
+                  preload="metadata"
+                ></video>
+                <p class="reel-caption">Messaggio positivo - test video 4</p>
+              </article>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="container footer-bottom">
+        <p>© 2026 Progetto CoSa - ASL</p>
+      </div>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>
