@@ -465,7 +465,7 @@ h3 {
 .scroll-hint-backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(65, 65, 65, 0.32);
+  background: rgba(65, 65, 65, 0.4);
   opacity: 0;
   transition: opacity 200ms ease;
 }
