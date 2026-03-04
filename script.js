@@ -25,14 +25,16 @@ const reelsFeed = document.querySelector('[data-reels-feed]');
 if (reelsFeed) {
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const cooldownMs = 620;
-  const scrollAnimDurationMs = 290;
+  const scrollAnimDurationMs = 240;
   const wheelStepThreshold = 64;
   const touchThreshold = 75;
+  const scrollHintStorageKey = 'videoViewerScrollHintShown';
 
   const slides = Array.from(reelsFeed.querySelectorAll('.reel-slide'));
   const videos = slides.map((slide) => slide.querySelector('.reel-video'));
   const feedbackOverlays = slides.map((slide) => slide.querySelector('[data-playback-feedback]'));
   const audioToggle = document.querySelector('[data-audio-toggle]');
+  const scrollHint = document.querySelector('[data-scroll-hint]');
 
   let activeIndex = 0;
   let isCooldown = false;
@@ -45,6 +47,16 @@ if (reelsFeed) {
   let lastWheelTime = 0;
   let viewportHeight = reelsFeed.clientHeight || window.innerHeight;
   let isSoundOn = false;
+  let hasUserStepped = false;
+  let hintShowTimer = null;
+  let hintHideTimer = null;
+  let hasShownScrollHint = false;
+
+  try {
+    hasShownScrollHint = sessionStorage.getItem(scrollHintStorageKey) === 'true';
+  } catch (_error) {
+    hasShownScrollHint = false;
+  }
 
   const clampIndex = (index) => Math.max(0, Math.min(index, slides.length - 1));
 
@@ -113,6 +125,35 @@ if (reelsFeed) {
     }, cooldownMs);
   };
 
+  const hideScrollHint = (markAsShown = false) => {
+    if (!scrollHint) return;
+    if (hintShowTimer) window.clearTimeout(hintShowTimer);
+    if (hintHideTimer) window.clearTimeout(hintHideTimer);
+    scrollHint.classList.remove('is-visible');
+
+    if (markAsShown && !hasShownScrollHint) {
+      hasShownScrollHint = true;
+      try {
+        sessionStorage.setItem(scrollHintStorageKey, 'true');
+      } catch (_error) {
+        // Ignore storage failures.
+      }
+    }
+  };
+
+  const maybeShowScrollHint = () => {
+    if (!scrollHint || hasShownScrollHint || hasUserStepped || activeIndex !== 0 || reduceMotion) return;
+    if (hintShowTimer) window.clearTimeout(hintShowTimer);
+    if (hintHideTimer) window.clearTimeout(hintHideTimer);
+
+    hintShowTimer = window.setTimeout(() => {
+      scrollHint.classList.add('is-visible');
+      hintHideTimer = window.setTimeout(() => {
+        hideScrollHint(true);
+      }, 1200);
+    }, 300);
+  };
+
   const cancelAnimation = () => {
     if (scrollAnimRafId !== null) {
       window.cancelAnimationFrame(scrollAnimRafId);
@@ -173,6 +214,8 @@ if (reelsFeed) {
     if (isAnimating || isCooldown) return;
     const targetIndex = clampIndex(activeIndex + step);
     if (targetIndex === activeIndex) return;
+    hasUserStepped = true;
+    hideScrollHint(true);
     goToIndex(targetIndex, true);
     lockInput();
   };
@@ -201,6 +244,9 @@ if (reelsFeed) {
         activeIndex = nextActiveIndex;
         updatePreload();
       }
+
+      if (activeIndex > 0) hideScrollHint(true);
+      else maybeShowScrollHint();
 
       syncPlayback();
     },
@@ -335,5 +381,6 @@ if (reelsFeed) {
 
   updateAudioToggleUi();
   goToIndex(0, false);
+  maybeShowScrollHint();
   syncPlayback();
 }

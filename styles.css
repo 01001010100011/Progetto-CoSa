@@ -436,6 +436,33 @@ h3 {
   display: block;
 }
 
+.scroll-hint {
+  position: absolute;
+  left: 50%;
+  bottom: calc(22px + env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  z-index: 30;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.scroll-hint svg {
+  width: 22px;
+  height: 22px;
+}
+
+.scroll-hint.is-visible {
+  animation: scroll-hint-pop 1200ms ease-out forwards;
+}
+
 @keyframes feedback-pop {
   0% {
     opacity: 0;
@@ -448,6 +475,29 @@ h3 {
   100% {
     opacity: 0;
     transform: translate(-50%, -50%) scale(1.05);
+  }
+}
+
+@keyframes scroll-hint-pop {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-3px);
+  }
+  15% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  45% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(4px);
+  }
+  70% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-1px);
   }
 }
 
@@ -669,5 +719,10 @@ h3 {
 
   .reels-app {
     scroll-behavior: auto;
+  }
+
+  .scroll-hint.is-visible {
+    animation: none;
+    opacity: 0;
   }
 }
