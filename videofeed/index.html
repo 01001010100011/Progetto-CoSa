@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="it" class="video-viewer-root">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Progetto CoSa | Video Feed</title>
+    <meta
+      name="description"
+      content="Feed video verticale full-screen in formato 9:16 per i contenuti del Progetto CoSa."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body class="video-page">
+    <header class="video-topbar" aria-label="Barra superiore video">
+      <div class="video-topbar-left">
+        <a class="video-home" href="/">Home</a>
+      </div>
+      <p class="video-title">Video</p>
+      <div class="video-topbar-right">
+        <button
+          class="video-audio-toggle is-muted"
+          type="button"
+          data-audio-toggle
+          aria-label="Attiva audio"
+          aria-pressed="false"
+        >
+          <svg class="audio-icon icon-muted" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M14 5v14l-6-4H4V9h4zm3.59 7 2.7 2.7-1.42 1.41-2.7-2.7-2.7 2.7-1.41-1.41 2.7-2.7-2.7-2.7 1.41-1.41 2.7 2.7 2.7-2.7 1.42 1.41z"></path>
+          </svg>
+          <svg class="audio-icon icon-unmuted" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M14 5v14l-6-4H4V9h4zM16.5 8.5a1 1 0 0 1 1.4 0A5 5 0 0 1 19.5 12a5 5 0 0 1-1.6 3.5 1 1 0 1 1-1.4-1.4 3 3 0 0 0 0-4.2 1 1 0 0 1 0-1.4zm2.9-2.9a1 1 0 0 1 1.4 0A9 9 0 0 1 23.5 12a9 9 0 0 1-2.7 6.4 1 1 0 1 1-1.4-1.4 7 7 0 0 0 0-9.9 1 1 0 0 1 0-1.4z"></path>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <main class="reels-app" data-reels-feed tabindex="0" aria-label="Feed video verticale">
+      <section class="reel-slide" data-index="0">
+        <video
+          class="reel-video"
+          src="/assets/videos/IMG_7374.MOV"
+          muted
+          autoplay
+          loop
+          playsinline
+          preload="auto"
+        ></video>
+        <div class="scroll-hint" data-scroll-hint aria-hidden="true">
+          <div class="scroll-hint-backdrop"></div>
+          <div class="scroll-hint-content">
+            <svg class="scroll-hint-arrow" viewBox="0 0 24 24" fill="none" role="presentation">
+              <path d="M12 4v14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"></path>
+              <path d="M6.5 12.5L12 18l5.5-5.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+          </div>
+        </div>
+        <div class="video-feedback" data-playback-feedback aria-hidden="true">
+          <svg
+            class="video-feedback-icon icon-play"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            role="presentation"
+          >
+            <path d="M8 5v14l11-7z"></path>
+          </svg>
+          <svg
+            class="video-feedback-icon icon-pause"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            role="presentation"
+          >
+            <path d="M7 5h4v14H7zm6 0h4v14h-4z"></path>
+          </svg>
+        </div>
+      </section>
+
+      <section class="reel-slide" data-index="1">
+        <video
+          class="reel-video"
+          src="/assets/videos/IMG_7376.MOV"
+          muted
+          autoplay
+          loop
+          playsinline
+          preload="metadata"
+        ></video>
+        <div class="video-feedback" data-playback-feedback aria-hidden="true">
+          <svg
+            class="video-feedback-icon icon-play"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            role="presentation"
+          >
+            <path d="M8 5v14l11-7z"></path>
+          </svg>
+          <svg
+            class="video-feedback-icon icon-pause"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            role="presentation"
+          >
+            <path d="M7 5h4v14H7zm6 0h4v14h-4z"></path>
+          </svg>
+        </div>
+      </section>
+    </main>
+
+    <script src="/script.js"></script>
+  </body>
+</html>
