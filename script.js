@@ -17,3 +17,28 @@ const observer = new IntersectionObserver(
 );
 
 revealElements.forEach((el) => observer.observe(el));
+
+const reelVideos = document.querySelectorAll('.reel-video');
+
+if (reelVideos.length > 0) {
+  const playVisibleVideo = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        const video = entry.target;
+        if (entry.isIntersecting && entry.intersectionRatio >= 0.7) {
+          reelVideos.forEach((other) => {
+            if (other !== video) other.pause();
+          });
+          video.play().catch(() => {});
+        } else {
+          video.pause();
+        }
+      });
+    },
+    {
+      threshold: [0.3, 0.7, 1],
+    }
+  );
+
+  reelVideos.forEach((video) => playVisibleVideo.observe(video));
+}

@@ -257,6 +257,53 @@ h3 {
   gap: 18px;
 }
 
+.reel-section {
+  background: color-mix(in srgb, var(--card) 62%, white 38%);
+}
+
+.reel-shell {
+  margin-top: 24px;
+  border-radius: var(--radius-xl);
+  background: var(--white);
+  padding: 22px;
+  box-shadow: var(--shadow-soft);
+  border: 1px solid rgba(51, 51, 51, 0.08);
+}
+
+.reels-feed {
+  max-height: 82vh;
+  overflow-y: auto;
+  padding-right: 6px;
+  scroll-snap-type: y mandatory;
+  display: grid;
+  gap: 20px;
+}
+
+.reel-item {
+  scroll-snap-align: start;
+  background: var(--bg);
+  border-radius: var(--radius-lg);
+  padding: 12px;
+  box-shadow: 0 10px 20px rgba(51, 51, 51, 0.08);
+}
+
+.reel-video {
+  width: min(100%, 390px);
+  display: block;
+  margin: 0 auto;
+  aspect-ratio: 9 / 16;
+  object-fit: cover;
+  border-radius: 16px;
+  background: #201f1f;
+}
+
+.reel-caption {
+  margin-top: 10px;
+  text-align: center;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
 .step {
   background: var(--white);
   border-radius: var(--radius-lg);
@@ -359,6 +406,10 @@ h3 {
   .footer-grid {
     grid-template-columns: 1fr;
   }
+
+  .reels-feed {
+    max-height: 74vh;
+  }
 }
 
 @media (max-width: 680px) {
@@ -427,6 +478,19 @@ h3 {
   .cards-3,
   .cards-2 {
     grid-template-columns: 1fr;
+  }
+
+  .reel-shell {
+    padding: 14px;
+  }
+
+  .reels-feed {
+    max-height: 68vh;
+    gap: 14px;
+  }
+
+  .reel-item {
+    padding: 10px;
   }
 
   .btn {
