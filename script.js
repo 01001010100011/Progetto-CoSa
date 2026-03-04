@@ -24,20 +24,22 @@ const reelsFeed = document.querySelector('[data-reels-feed]');
 
 if (reelsFeed) {
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const cooldownMs = 650;
+  const cooldownMs = 700;
   const wheelThreshold = 18;
-  const touchThreshold = 45;
+  const touchThreshold = 60;
 
   const slides = Array.from(reelsFeed.querySelectorAll('.reel-slide'));
   const videos = slides.map((slide) => slide.querySelector('.reel-video'));
 
   let activeIndex = 0;
-  let isCooldown = false;
+  let isInputLocked = false;
   let touchStartY = null;
+  let scrollEndTimer = null;
 
   const clampIndex = (index) => Math.max(0, Math.min(index, slides.length - 1));
+  const viewportHeight = () => reelsFeed.clientHeight || window.innerHeight;
 
-  // Keep network usage light by prioritizing current and next video only.
+  // Keep network usage light by prioritizing only current and next video.
   const updatePreload = () => {
     videos.forEach((video, index) => {
       if (!video) return;
@@ -56,24 +58,32 @@ if (reelsFeed) {
     });
   };
 
-  const goToIndex = (nextIndex, fromUserInput = false) => {
-    const targetIndex = clampIndex(nextIndex);
-    if (targetIndex === activeIndex && fromUserInput) return;
+  const lockInput = () => {
+    isInputLocked = true;
+    window.setTimeout(() => {
+      isInputLocked = false;
+    }, cooldownMs);
+  };
 
-    activeIndex = targetIndex;
+  const scrollToIndex = (index, smooth = true, shouldLock = false) => {
+    activeIndex = clampIndex(index);
     reelsFeed.scrollTo({
-      top: activeIndex * window.innerHeight,
-      behavior: reduceMotion ? 'auto' : 'smooth',
+      top: activeIndex * viewportHeight(),
+      behavior: reduceMotion || !smooth ? 'auto' : 'smooth',
     });
 
     updatePreload();
 
-    if (fromUserInput) {
-      isCooldown = true;
-      window.setTimeout(() => {
-        isCooldown = false;
-      }, cooldownMs);
+    if (shouldLock) lockInput();
+  };
+
+  const snapToNearest = (smooth = true) => {
+    const nearest = clampIndex(Math.round(reelsFeed.scrollTop / viewportHeight()));
+    if (nearest !== activeIndex) {
+      activeIndex = nearest;
+      updatePreload();
     }
+    scrollToIndex(nearest, smooth, false);
   };
 
   const observer = new IntersectionObserver(
@@ -88,16 +98,18 @@ if (reelsFeed) {
         }
       });
 
-      if (bestVisible) {
-        const newIndex = Number(bestVisible.target.dataset.index || 0);
-        if (newIndex !== activeIndex) {
-          activeIndex = newIndex;
-          updatePreload();
-        }
-        syncPlayback();
-      } else {
+      if (!bestVisible) {
         videos.forEach((video) => video && video.pause());
+        return;
       }
+
+      const nextActiveIndex = Number(bestVisible.target.dataset.index || 0);
+      if (nextActiveIndex !== activeIndex) {
+        activeIndex = nextActiveIndex;
+        updatePreload();
+      }
+
+      syncPlayback();
     },
     {
       root: reelsFeed,
@@ -111,10 +123,12 @@ if (reelsFeed) {
     'wheel',
     (event) => {
       if (Math.abs(event.deltaY) < wheelThreshold) return;
-      event.preventDefault();
-      if (isCooldown) return;
 
-      goToIndex(activeIndex + (event.deltaY > 0 ? 1 : -1), true);
+      event.preventDefault();
+      if (isInputLocked) return;
+
+      const step = event.deltaY > 0 ? 1 : -1;
+      scrollToIndex(activeIndex + step, true, true);
     },
     { passive: false }
   );
@@ -124,35 +138,50 @@ if (reelsFeed) {
   });
 
   reelsFeed.addEventListener('touchend', (event) => {
-    if (touchStartY === null || isCooldown) return;
-
-    const deltaY = touchStartY - event.changedTouches[0].clientY;
-    if (Math.abs(deltaY) < touchThreshold) {
+    if (touchStartY === null || isInputLocked) {
       touchStartY = null;
       return;
     }
 
-    goToIndex(activeIndex + (deltaY > 0 ? 1 : -1), true);
+    const deltaY = touchStartY - event.changedTouches[0].clientY;
     touchStartY = null;
+
+    if (Math.abs(deltaY) < touchThreshold) {
+      snapToNearest(false);
+      return;
+    }
+
+    const step = deltaY > 0 ? 1 : -1;
+    scrollToIndex(activeIndex + step, true, true);
+  });
+
+  reelsFeed.addEventListener('scroll', () => {
+    if (scrollEndTimer) window.clearTimeout(scrollEndTimer);
+
+    // Force final alignment to one slide so user can't stop between videos.
+    scrollEndTimer = window.setTimeout(() => {
+      snapToNearest(true);
+    }, 120);
   });
 
   window.addEventListener('keydown', (event) => {
+    if (isInputLocked) return;
+
     if (event.key === 'ArrowDown' || event.key === 'PageDown') {
       event.preventDefault();
-      if (!isCooldown) goToIndex(activeIndex + 1, true);
+      scrollToIndex(activeIndex + 1, true, true);
     }
 
     if (event.key === 'ArrowUp' || event.key === 'PageUp') {
       event.preventDefault();
-      if (!isCooldown) goToIndex(activeIndex - 1, true);
+      scrollToIndex(activeIndex - 1, true, true);
     }
   });
 
   window.addEventListener('resize', () => {
-    reelsFeed.scrollTo({ top: activeIndex * window.innerHeight, behavior: 'auto' });
+    scrollToIndex(activeIndex, false, false);
   });
 
-  // Ensure deterministic initial state.
-  goToIndex(0, false);
+  scrollToIndex(0, false, false);
   syncPlayback();
 }

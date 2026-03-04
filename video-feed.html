@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="it">
+<html lang="it" class="video-viewer-root">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -18,8 +18,11 @@
   </head>
   <body class="video-page">
     <header class="video-topbar" aria-label="Barra superiore video">
-      <a class="video-home" href="index.html">Home</a>
+      <div class="video-topbar-left">
+        <a class="video-home" href="index.html">Home</a>
+      </div>
       <p class="video-title">Video</p>
+      <div class="video-topbar-right" aria-hidden="true"></div>
     </header>
 
     <main class="reels-app" data-reels-feed tabindex="0" aria-label="Feed video verticale">
