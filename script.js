@@ -24,7 +24,8 @@ const reelsFeed = document.querySelector('[data-reels-feed]');
 
 if (reelsFeed) {
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const cooldownMs = 700;
+  const cooldownMs = 520;
+  const scrollAnimDurationMs = 300;
   const wheelThreshold = 18;
   const touchThreshold = 60;
 
@@ -39,6 +40,8 @@ if (reelsFeed) {
   let tapStartPoint = null;
   let scrollEndTimer = null;
   let feedbackTimer = null;
+  let scrollAnimRafId = null;
+  let isProgrammaticScroll = false;
   let isSoundOn = false;
 
   const clampIndex = (index) => Math.max(0, Math.min(index, slides.length - 1));
@@ -109,12 +112,58 @@ if (reelsFeed) {
     }, cooldownMs);
   };
 
+  const cancelProgrammaticAnimation = () => {
+    if (scrollAnimRafId !== null) {
+      window.cancelAnimationFrame(scrollAnimRafId);
+      scrollAnimRafId = null;
+    }
+    isProgrammaticScroll = false;
+  };
+
+  // Easing close to app-like behavior: quick start and gentle settle.
+  const easeOutAppLike = (t) => 1 - Math.pow(1 - t, 3);
+
+  const animateScrollTo = (targetTop, durationMs) => {
+    cancelProgrammaticAnimation();
+
+    const startTop = reelsFeed.scrollTop;
+    const distance = targetTop - startTop;
+    if (Math.abs(distance) < 1) {
+      reelsFeed.scrollTop = targetTop;
+      return;
+    }
+
+    const startTime = performance.now();
+    isProgrammaticScroll = true;
+
+    const tick = (now) => {
+      const elapsed = now - startTime;
+      const progress = Math.min(1, elapsed / durationMs);
+      reelsFeed.scrollTop = startTop + distance * easeOutAppLike(progress);
+
+      if (progress < 1) {
+        scrollAnimRafId = window.requestAnimationFrame(tick);
+        return;
+      }
+
+      reelsFeed.scrollTop = targetTop;
+      scrollAnimRafId = null;
+      isProgrammaticScroll = false;
+    };
+
+    scrollAnimRafId = window.requestAnimationFrame(tick);
+  };
+
   const scrollToIndex = (index, smooth = true, shouldLock = false) => {
     activeIndex = clampIndex(index);
-    reelsFeed.scrollTo({
-      top: activeIndex * viewportHeight(),
-      behavior: reduceMotion || !smooth ? 'auto' : 'smooth',
-    });
+    const targetTop = activeIndex * viewportHeight();
+
+    if (reduceMotion || !smooth) {
+      cancelProgrammaticAnimation();
+      reelsFeed.scrollTop = targetTop;
+    } else {
+      animateScrollTo(targetTop, scrollAnimDurationMs);
+    }
 
     updatePreload();
 
@@ -123,10 +172,10 @@ if (reelsFeed) {
 
   const snapToNearest = (smooth = true) => {
     const nearest = clampIndex(Math.round(reelsFeed.scrollTop / viewportHeight()));
-    if (nearest !== activeIndex) {
-      activeIndex = nearest;
-      updatePreload();
-    }
+    const targetTop = nearest * viewportHeight();
+    const isAlreadyAligned = Math.abs(reelsFeed.scrollTop - targetTop) < 1;
+    if (nearest !== activeIndex) activeIndex = nearest;
+    if (isAlreadyAligned) return;
     scrollToIndex(nearest, smooth, false);
   };
 
@@ -237,11 +286,12 @@ if (reelsFeed) {
   });
 
   reelsFeed.addEventListener('scroll', () => {
+    if (isProgrammaticScroll) return;
     if (scrollEndTimer) window.clearTimeout(scrollEndTimer);
 
     // Force final alignment to one slide so user can't stop between videos.
     scrollEndTimer = window.setTimeout(() => {
-      snapToNearest(true);
+      snapToNearest(false);
     }, 120);
   });
 
