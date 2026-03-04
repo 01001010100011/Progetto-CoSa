@@ -28,7 +28,7 @@ if (reelsFeed) {
   const scrollAnimDurationMs = 300;
   const wheelStepThreshold = 64;
   const touchThreshold = 75;
-  const scrollHintStorageKey = 'videoViewerScrollHintShown';
+  const scrollHintVisibleMs = 3300;
 
   const slides = Array.from(reelsFeed.querySelectorAll('.reel-slide'));
   const videos = slides.map((slide) => slide.querySelector('.reel-video'));
@@ -50,13 +50,6 @@ if (reelsFeed) {
   let hasUserStepped = false;
   let hintShowTimer = null;
   let hintHideTimer = null;
-  let hasShownScrollHint = false;
-
-  try {
-    hasShownScrollHint = sessionStorage.getItem(scrollHintStorageKey) === 'true';
-  } catch (_error) {
-    hasShownScrollHint = false;
-  }
 
   const clampIndex = (index) => Math.max(0, Math.min(index, slides.length - 1));
 
@@ -138,32 +131,23 @@ if (reelsFeed) {
     }, cooldownMs);
   };
 
-  const hideScrollHint = (markAsShown = false) => {
+  const hideScrollHint = () => {
     if (!scrollHint) return;
     if (hintShowTimer) window.clearTimeout(hintShowTimer);
     if (hintHideTimer) window.clearTimeout(hintHideTimer);
     scrollHint.classList.remove('is-visible');
-
-    if (markAsShown && !hasShownScrollHint) {
-      hasShownScrollHint = true;
-      try {
-        sessionStorage.setItem(scrollHintStorageKey, 'true');
-      } catch (_error) {
-        // Ignore storage failures.
-      }
-    }
   };
 
   const maybeShowScrollHint = () => {
-    if (!scrollHint || hasShownScrollHint || hasUserStepped || activeIndex !== 0 || reduceMotion) return;
+    if (!scrollHint || hasUserStepped || activeIndex !== 0 || reduceMotion) return;
     if (hintShowTimer) window.clearTimeout(hintShowTimer);
     if (hintHideTimer) window.clearTimeout(hintHideTimer);
 
     hintShowTimer = window.setTimeout(() => {
       scrollHint.classList.add('is-visible');
       hintHideTimer = window.setTimeout(() => {
-        hideScrollHint(true);
-      }, 2000);
+        hideScrollHint();
+      }, scrollHintVisibleMs);
     }, 300);
   };
 
@@ -238,7 +222,7 @@ if (reelsFeed) {
     const targetIndex = clampIndex(activeIndex + step);
     if (targetIndex === activeIndex) return;
     hasUserStepped = true;
-    hideScrollHint(true);
+    hideScrollHint();
     goToIndex(targetIndex, true);
     lockInput();
   };
@@ -268,7 +252,7 @@ if (reelsFeed) {
         updatePreload();
       }
 
-      if (activeIndex > 0) hideScrollHint(true);
+      if (activeIndex > 0) hideScrollHint();
       else maybeShowScrollHint();
 
       syncPlayback();
