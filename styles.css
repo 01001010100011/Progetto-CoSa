@@ -820,14 +820,31 @@ h3 {
 
 /* Desktop viewer: keep a centered vertical 9:16 stage with black side gutters. */
 @media (min-width: 900px) {
+  .video-topbar {
+    display: none;
+  }
+
+  .video-page {
+    align-items: stretch;
+  }
+
+  .video-viewer-layout {
+    height: 100vh;
+    height: 100dvh;
+  }
+
   .reels-app {
     aspect-ratio: 9 / 16;
     width: auto;
+    height: 100vh;
+    height: 100dvh;
     max-width: min(calc(100dvh * 9 / 16), 100vw);
   }
 
   .reel-slide {
     width: 100%;
+    height: 100vh;
+    height: 100dvh;
   }
 
   .reel-video {
@@ -837,9 +854,10 @@ h3 {
 
 @media (min-width: 1180px) {
   .video-viewer-layout {
-    --viewer-stage-height: calc(100dvh - 118px - env(safe-area-inset-top));
     width: min(1460px, 100vw);
-    padding: calc(84px + env(safe-area-inset-top)) clamp(28px, 4vw, 54px) 34px;
+    height: 100vh;
+    height: 100dvh;
+    padding: 0 clamp(28px, 4vw, 54px);
     display: grid;
     grid-template-columns: minmax(240px, 320px) auto minmax(240px, 320px);
     gap: clamp(24px, 3vw, 44px);
@@ -911,12 +929,14 @@ h3 {
   }
 
   .reels-app {
-    height: var(--viewer-stage-height);
-    max-height: var(--viewer-stage-height);
+    height: 100vh;
+    height: 100dvh;
+    max-height: 100dvh;
   }
 
   .reel-slide {
-    height: var(--viewer-stage-height);
+    height: 100vh;
+    height: 100dvh;
   }
 
   .video-meta-overlay {
