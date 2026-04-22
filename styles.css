@@ -560,6 +560,8 @@ h3 {
   height: 100vh;
   height: 100dvh;
   width: 100vw;
+  display: grid;
+  place-items: center;
   scroll-snap-align: start;
   scroll-snap-stop: always;
   background: #000;
@@ -570,7 +572,10 @@ h3 {
   z-index: 1;
   height: 100%;
   width: 100%;
-  object-fit: cover;
+  max-width: 100%;
+  max-height: 100%;
+  aspect-ratio: 9 / 16;
+  object-fit: contain;
   background: #111;
   contain: paint;
 }
@@ -592,7 +597,9 @@ h3 {
   gap: 8px;
   max-width: min(720px, 92%);
   padding: 18px 16px 14px;
-  border-radius: 22px 22px 0 0;
+  margin: 0 auto 4px;
+  border-radius: 22px;
+  overflow: hidden;
   background: linear-gradient(180deg, rgba(20, 20, 20, 0.2) 0%, rgba(12, 12, 12, 0.56) 100%);
   backdrop-filter: blur(12px);
 }
@@ -821,6 +828,11 @@ h3 {
 /* Desktop viewer: keep a centered vertical 9:16 stage with black side gutters. */
 @media (min-width: 900px) {
   .video-topbar {
+    padding: env(safe-area-inset-top) 18px 0;
+    background: none;
+  }
+
+  .video-title {
     display: none;
   }
 
@@ -847,8 +859,10 @@ h3 {
     height: 100dvh;
   }
 
-  .reel-video {
-    object-fit: contain;
+  .video-home,
+  .video-audio-toggle {
+    background: rgba(0, 0, 0, 0.42);
+    border-color: rgba(255, 255, 255, 0.26);
   }
 }
 
