@@ -583,7 +583,7 @@ h3 {
   z-index: 25;
   pointer-events: none;
   padding: 0 14px calc(18px + env(safe-area-inset-bottom));
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 8%, rgba(0, 0, 0, 0.68) 78%);
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 2%, rgba(0, 0, 0, 0.8) 76%);
 }
 
 .video-meta-inner {
@@ -591,6 +591,10 @@ h3 {
   flex-direction: column;
   gap: 8px;
   max-width: min(720px, 92%);
+  padding: 18px 16px 14px;
+  border-radius: 22px 22px 0 0;
+  background: linear-gradient(180deg, rgba(20, 20, 20, 0.2) 0%, rgba(12, 12, 12, 0.56) 100%);
+  backdrop-filter: blur(12px);
 }
 
 .video-meta-title {
@@ -599,6 +603,7 @@ h3 {
   font-size: clamp(1.2rem, 2.8vw, 1.65rem);
   font-weight: 700;
   line-height: 1.25;
+  text-shadow: 0 4px 18px rgba(0, 0, 0, 0.38);
 }
 
 .video-meta-description-wrap {
@@ -610,6 +615,7 @@ h3 {
   font-size: clamp(0.95rem, 1.8vw, 1.02rem);
   line-height: 1.45;
   max-width: min(72ch, 100%);
+  text-shadow: 0 4px 16px rgba(0, 0, 0, 0.34);
 }
 
 .video-meta-description.is-clamped {
@@ -630,6 +636,36 @@ h3 {
 
 .video-meta-description.is-expanded::-webkit-scrollbar {
   display: none;
+}
+
+.video-meta-credits {
+  margin-top: 12px;
+  display: grid;
+  gap: 6px;
+}
+
+.video-meta-credit-line {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.video-meta-credit-role {
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.video-meta-credit-name {
+  color: rgba(255, 255, 255, 0.94);
+  font-size: 0.92rem;
+  font-weight: 600;
+  line-height: 1.45;
+  text-shadow: 0 4px 16px rgba(0, 0, 0, 0.34);
 }
 
 .video-meta-toggle {
@@ -786,17 +822,22 @@ h3 {
 @media (min-width: 900px) {
   .reels-app {
     aspect-ratio: 9 / 16;
-    width: min(calc(100dvh * 9 / 16), 100vw);
-    max-width: calc(100dvh * 9 / 16);
+    width: auto;
+    max-width: min(calc(100dvh * 9 / 16), 100vw);
   }
 
   .reel-slide {
     width: 100%;
   }
+
+  .reel-video {
+    object-fit: contain;
+  }
 }
 
 @media (min-width: 1180px) {
   .video-viewer-layout {
+    --viewer-stage-height: calc(100dvh - 118px - env(safe-area-inset-top));
     width: min(1460px, 100vw);
     padding: calc(84px + env(safe-area-inset-top)) clamp(28px, 4vw, 54px) 34px;
     display: grid;
@@ -867,6 +908,15 @@ h3 {
     font-size: 1.08rem;
     font-weight: 600;
     line-height: 1.45;
+  }
+
+  .reels-app {
+    height: var(--viewer-stage-height);
+    max-height: var(--viewer-stage-height);
+  }
+
+  .reel-slide {
+    height: var(--viewer-stage-height);
   }
 
   .video-meta-overlay {

@@ -39,6 +39,8 @@ if (reelsFeed) {
     titleEl: slide.querySelector('[data-video-title]'),
     descEl: slide.querySelector('[data-video-description]'),
     toggleEl: slide.querySelector('[data-video-toggle]'),
+    shotByEl: slide.querySelector('[data-video-shotby]'),
+    editedByEl: slide.querySelector('[data-video-editedby]'),
   }));
   const desktopMetaEls = {
     title: document.querySelector('[data-desktop-video-title]'),
@@ -202,6 +204,8 @@ if (reelsFeed) {
       metadataState[index] = parsed;
       meta.titleEl.textContent = parsed.title || 'Video';
       meta.descEl.textContent = parsed.description || '';
+      if (meta.shotByEl) meta.shotByEl.textContent = parsed.shotBy || 'In aggiornamento';
+      if (meta.editedByEl) meta.editedByEl.textContent = parsed.editedBy || 'In aggiornamento';
       metadataLoaded[index] = true;
       requestAnimationFrame(() => {
         updateMetaToggleVisibility(index);
@@ -216,6 +220,8 @@ if (reelsFeed) {
       };
       meta.titleEl.textContent = 'Video';
       meta.descEl.textContent = '';
+      if (meta.shotByEl) meta.shotByEl.textContent = 'In aggiornamento';
+      if (meta.editedByEl) meta.editedByEl.textContent = 'In aggiornamento';
       meta.toggleEl.hidden = true;
       metadataLoaded[index] = true;
       if (index === activeIndex) renderDesktopMetadata(index);
