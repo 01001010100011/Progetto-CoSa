@@ -40,8 +40,19 @@
       </div>
     </header>
 
-    <main class="reels-app" data-reels-feed tabindex="0" aria-label="Feed video verticale">
-      <section class="reel-slide" data-index="0">
+    <main class="video-viewer-layout" aria-label="Layout viewer video">
+      <aside class="video-info-panel video-info-panel-left" aria-live="polite">
+        <div class="video-info-card">
+          <p class="video-info-label">Descrizione</p>
+          <h2 class="video-info-heading" data-desktop-video-title>Video</h2>
+          <p class="video-info-text" data-desktop-video-description>
+            Nessuna descrizione disponibile per questo contenuto.
+          </p>
+        </div>
+      </aside>
+
+      <div class="reels-app" data-reels-feed tabindex="0" aria-label="Feed video verticale">
+        <section class="reel-slide" data-index="0" data-meta-src="/assets/videos/IMG_7374.md">
         <video
           class="reel-video"
           src="/assets/videos/IMG_7374.MOV"
@@ -51,6 +62,17 @@
           playsinline
           preload="auto"
         ></video>
+        <div class="video-meta-overlay" data-video-meta>
+          <div class="video-meta-inner">
+            <h2 class="video-meta-title" data-video-title>Video</h2>
+            <div class="video-meta-description-wrap">
+              <p class="video-meta-description is-clamped" data-video-description></p>
+              <button class="video-meta-toggle" type="button" data-video-toggle aria-label="Mostra descrizione completa">
+                MOSTRA ALTRO
+              </button>
+            </div>
+          </div>
+        </div>
         <div class="scroll-hint" data-scroll-hint aria-hidden="true">
           <div class="scroll-hint-backdrop"></div>
           <div class="scroll-hint-content">
@@ -78,9 +100,9 @@
             <path d="M7 5h4v14H7zm6 0h4v14h-4z"></path>
           </svg>
         </div>
-      </section>
+        </section>
 
-      <section class="reel-slide" data-index="1">
+        <section class="reel-slide" data-index="1" data-meta-src="/assets/videos/IMG_7376.md">
         <video
           class="reel-video"
           src="/assets/videos/IMG_7376.MOV"
@@ -90,6 +112,17 @@
           playsinline
           preload="metadata"
         ></video>
+        <div class="video-meta-overlay" data-video-meta>
+          <div class="video-meta-inner">
+            <h2 class="video-meta-title" data-video-title>Video</h2>
+            <div class="video-meta-description-wrap">
+              <p class="video-meta-description is-clamped" data-video-description></p>
+              <button class="video-meta-toggle" type="button" data-video-toggle aria-label="Mostra descrizione completa">
+                MOSTRA ALTRO
+              </button>
+            </div>
+          </div>
+        </div>
         <div class="video-feedback" data-playback-feedback aria-hidden="true">
           <svg
             class="video-feedback-icon icon-play"
@@ -108,7 +141,24 @@
             <path d="M7 5h4v14H7zm6 0h4v14h-4z"></path>
           </svg>
         </div>
-      </section>
+        </section>
+      </div>
+
+      <aside class="video-info-panel video-info-panel-right" aria-live="polite">
+        <div class="video-info-card">
+          <p class="video-info-label">Crediti</p>
+          <div class="video-credit-list">
+            <div class="video-credit-item">
+              <span class="video-credit-role">Riprese</span>
+              <span class="video-credit-name" data-desktop-video-shotby>In aggiornamento</span>
+            </div>
+            <div class="video-credit-item">
+              <span class="video-credit-role">Editing</span>
+              <span class="video-credit-name" data-desktop-video-editedby>In aggiornamento</span>
+            </div>
+          </div>
+        </div>
+      </aside>
     </main>
 
     <script src="/script.js"></script>

@@ -34,6 +34,18 @@ if (reelsFeed) {
   const slides = Array.from(reelsFeed.querySelectorAll('.reel-slide'));
   const videos = slides.map((slide) => slide.querySelector('.reel-video'));
   const feedbackOverlays = slides.map((slide) => slide.querySelector('[data-playback-feedback]'));
+  const metaBlocks = slides.map((slide) => ({
+    src: slide.dataset.metaSrc,
+    titleEl: slide.querySelector('[data-video-title]'),
+    descEl: slide.querySelector('[data-video-description]'),
+    toggleEl: slide.querySelector('[data-video-toggle]'),
+  }));
+  const desktopMetaEls = {
+    title: document.querySelector('[data-desktop-video-title]'),
+    description: document.querySelector('[data-desktop-video-description]'),
+    shotBy: document.querySelector('[data-desktop-video-shotby]'),
+    editedBy: document.querySelector('[data-desktop-video-editedby]'),
+  };
   const audioToggle = document.querySelector('[data-audio-toggle]');
   const scrollHint = document.querySelector('[data-scroll-hint]');
 
@@ -51,6 +63,14 @@ if (reelsFeed) {
   let hasUserStepped = false;
   let hintShowTimer = null;
   let hintHideTimer = null;
+  const expandedDescriptions = new Array(slides.length).fill(false);
+  const metadataLoaded = new Array(slides.length).fill(false);
+  const metadataState = slides.map(() => ({
+    title: 'Video',
+    description: '',
+    shotBy: 'In aggiornamento',
+    editedBy: 'In aggiornamento',
+  }));
 
   const clampIndex = (index) => Math.max(0, Math.min(index, slides.length - 1));
 
@@ -60,6 +80,146 @@ if (reelsFeed) {
       if (!video) return;
       video.preload = index === activeIndex || index === activeIndex + 1 ? 'auto' : 'metadata';
     });
+  };
+
+  const parseVideoMetadata = (rawText) => {
+    const matchField = (name) =>
+      rawText.match(new RegExp(`^\\s*${name}:\\s*"([\\s\\S]*?)"\\s*$`, 'im'));
+
+    const titleMatch = matchField('title');
+    const descriptionMatch = matchField('description');
+    const shotByMatch = matchField('shot_by');
+    const editedByMatch = matchField('edited_by');
+
+    if (titleMatch || descriptionMatch || shotByMatch || editedByMatch) {
+      return {
+        title: (titleMatch?.[1] || 'Video').trim(),
+        description: (descriptionMatch?.[1] || '').trim(),
+        shotBy: (shotByMatch?.[1] || 'In aggiornamento').trim(),
+        editedBy: (editedByMatch?.[1] || 'In aggiornamento').trim(),
+      };
+    }
+
+    const lines = rawText.split('\n').map((line) => line.trim()).filter(Boolean);
+    if (lines.length === 0) {
+      return {
+        title: 'Video',
+        description: '',
+        shotBy: 'In aggiornamento',
+        editedBy: 'In aggiornamento',
+      };
+    }
+
+    const first = lines[0];
+    const title = first.startsWith('#') ? first.replace(/^#+\s*/, '') : first;
+    const description = lines.slice(1).join(' ').trim();
+    return {
+      title,
+      description,
+      shotBy: 'In aggiornamento',
+      editedBy: 'In aggiornamento',
+    };
+  };
+
+  const renderDesktopMetadata = (index) => {
+    const meta = metadataState[index];
+    if (!meta) return;
+
+    if (desktopMetaEls.title) {
+      desktopMetaEls.title.textContent = meta.title || 'Video';
+    }
+
+    if (desktopMetaEls.description) {
+      desktopMetaEls.description.textContent =
+        meta.description || 'Nessuna descrizione disponibile per questo contenuto.';
+    }
+
+    if (desktopMetaEls.shotBy) {
+      desktopMetaEls.shotBy.textContent = meta.shotBy || 'In aggiornamento';
+    }
+
+    if (desktopMetaEls.editedBy) {
+      desktopMetaEls.editedBy.textContent = meta.editedBy || 'In aggiornamento';
+    }
+  };
+
+  const updateMetaToggleVisibility = (index) => {
+    const meta = metaBlocks[index];
+    if (!meta || !meta.descEl || !meta.toggleEl) return;
+
+    const wasExpanded = expandedDescriptions[index];
+    meta.descEl.classList.add('is-clamped');
+    meta.descEl.classList.remove('is-expanded');
+    const hasOverflow = meta.descEl.scrollHeight > meta.descEl.clientHeight + 1;
+
+    if (!hasOverflow) {
+      expandedDescriptions[index] = false;
+      meta.descEl.classList.remove('is-clamped', 'is-expanded');
+      meta.toggleEl.hidden = true;
+      return;
+    }
+
+    meta.toggleEl.hidden = false;
+    if (wasExpanded) {
+      meta.descEl.classList.remove('is-clamped');
+      meta.descEl.classList.add('is-expanded');
+      meta.toggleEl.textContent = 'MOSTRA MENO';
+      meta.toggleEl.setAttribute('aria-label', 'Mostra meno descrizione');
+    } else {
+      meta.descEl.classList.add('is-clamped');
+      meta.descEl.classList.remove('is-expanded');
+      meta.toggleEl.textContent = 'MOSTRA ALTRO';
+      meta.toggleEl.setAttribute('aria-label', 'Mostra descrizione completa');
+    }
+  };
+
+  const collapseDescription = (index) => {
+    const meta = metaBlocks[index];
+    if (!meta || !meta.descEl || !meta.toggleEl) return;
+    expandedDescriptions[index] = false;
+    meta.descEl.classList.add('is-clamped');
+    meta.descEl.classList.remove('is-expanded');
+    updateMetaToggleVisibility(index);
+  };
+
+  const collapseDescriptionsExcept = (index) => {
+    expandedDescriptions.forEach((isOpen, i) => {
+      if (i !== index && isOpen) collapseDescription(i);
+    });
+  };
+
+  const loadMetadataForSlide = async (index) => {
+    if (metadataLoaded[index]) return;
+
+    const meta = metaBlocks[index];
+    if (!meta || !meta.src || !meta.titleEl || !meta.descEl || !meta.toggleEl) return;
+
+    try {
+      const res = await fetch(meta.src, { cache: 'no-store' });
+      if (!res.ok) throw new Error(`Metadata HTTP ${res.status}`);
+      const raw = await res.text();
+      const parsed = parseVideoMetadata(raw);
+      metadataState[index] = parsed;
+      meta.titleEl.textContent = parsed.title || 'Video';
+      meta.descEl.textContent = parsed.description || '';
+      metadataLoaded[index] = true;
+      requestAnimationFrame(() => {
+        updateMetaToggleVisibility(index);
+        if (index === activeIndex) renderDesktopMetadata(index);
+      });
+    } catch (_error) {
+      metadataState[index] = {
+        title: 'Video',
+        description: '',
+        shotBy: 'In aggiornamento',
+        editedBy: 'In aggiornamento',
+      };
+      meta.titleEl.textContent = 'Video';
+      meta.descEl.textContent = '';
+      meta.toggleEl.hidden = true;
+      metadataLoaded[index] = true;
+      if (index === activeIndex) renderDesktopMetadata(index);
+    }
   };
 
   const applyAudioState = () => {
@@ -223,6 +383,8 @@ if (reelsFeed) {
     }
 
     updatePreload();
+    collapseDescriptionsExcept(activeIndex);
+    renderDesktopMetadata(activeIndex);
   };
 
   const stepTo = (step) => {
@@ -263,6 +425,8 @@ if (reelsFeed) {
       if (activeIndex > 0) hideScrollHint();
       else maybeShowScrollHint();
 
+      collapseDescriptionsExcept(activeIndex);
+      renderDesktopMetadata(activeIndex);
       syncPlayback();
     },
     {
@@ -274,6 +438,10 @@ if (reelsFeed) {
   slides.forEach((slide) => observer.observe(slide));
 
   const handleWheelStep = (event) => {
+    if (event.target instanceof Element && event.target.closest('.video-meta-description.is-expanded')) {
+      return;
+    }
+
     const now = performance.now();
     if (now - lastWheelTime > 180) wheelDeltaAccumulator = 0;
     lastWheelTime = now;
@@ -296,18 +464,39 @@ if (reelsFeed) {
 
   reelsFeed.addEventListener('touchstart', (event) => {
     if (isAnimating) return;
+    if (
+      event.target instanceof Element &&
+      event.target.closest('.video-meta-description.is-expanded')
+    ) {
+      touchStartY = null;
+      return;
+    }
     touchStartY = event.changedTouches[0].clientY;
   });
 
   reelsFeed.addEventListener(
     'touchmove',
     (event) => {
+      if (
+        event.target instanceof Element &&
+        event.target.closest('.video-meta-description.is-expanded')
+      ) {
+        return;
+      }
       if (!isAnimating) event.preventDefault();
     },
     { passive: false }
   );
 
   reelsFeed.addEventListener('touchend', (event) => {
+    if (
+      event.target instanceof Element &&
+      event.target.closest('.video-meta-description.is-expanded')
+    ) {
+      touchStartY = null;
+      return;
+    }
+
     if (touchStartY === null || isAnimating || isCooldown) {
       touchStartY = null;
       return;
@@ -378,7 +567,41 @@ if (reelsFeed) {
 
   window.addEventListener('resize', () => {
     viewportHeight = reelsFeed.clientHeight || window.innerHeight;
+    metaBlocks.forEach((_meta, index) => {
+      if (metadataLoaded[index]) updateMetaToggleVisibility(index);
+    });
     goToIndex(activeIndex, false);
+  });
+
+  metaBlocks.forEach((meta, index) => {
+    if (!meta || !meta.toggleEl || !meta.descEl) return;
+
+    loadMetadataForSlide(index);
+
+    meta.toggleEl.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      const willExpand = !expandedDescriptions[index];
+      expandedDescriptions[index] = willExpand;
+      if (willExpand) {
+        meta.descEl.classList.remove('is-clamped');
+        meta.descEl.classList.add('is-expanded');
+        meta.toggleEl.textContent = 'MOSTRA MENO';
+        meta.toggleEl.setAttribute('aria-label', 'Mostra meno descrizione');
+      } else {
+        collapseDescription(index);
+      }
+      updateMetaToggleVisibility(index);
+    });
+
+    meta.descEl.addEventListener(
+      'wheel',
+      (event) => {
+        if (!expandedDescriptions[index]) return;
+        event.stopPropagation();
+      },
+      { passive: true }
+    );
   });
 
   if (audioToggle) {
@@ -397,5 +620,6 @@ if (reelsFeed) {
   updateAudioToggleUi();
   goToIndex(0, false);
   maybeShowScrollHint();
+  renderDesktopMetadata(activeIndex);
   ensureActiveVideoPlays();
 }
