@@ -1,0 +1,8 @@
+title: "Intervista alla neuropsichiatra infantile"
+description: "Intervista alla neuropsichiatra infantile del TSMREE di Passo Corese, dedicata al suo lavoro e al supporto clinico rivolto ai piu giovani e alle loro famiglie."
+shot_by_label: "Riprese"
+shot_by: "Leonardo Riello"
+edited_by_label: "Editing"
+edited_by: "Leonardo Riello"
+extra_credit_label: "Intervistatrice"
+extra_credit_name: "Alessia delle Fave"
