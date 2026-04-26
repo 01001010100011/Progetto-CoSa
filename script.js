@@ -39,13 +39,17 @@ if (reelsFeed) {
     titleEl: slide.querySelector('[data-video-title]'),
     descEl: slide.querySelector('[data-video-description]'),
     toggleEl: slide.querySelector('[data-video-toggle]'),
+    shotByRoleEl: slide.querySelector('[data-video-shotby-role]'),
     shotByEl: slide.querySelector('[data-video-shotby]'),
+    editedByRoleEl: slide.querySelector('[data-video-editedby-role]'),
     editedByEl: slide.querySelector('[data-video-editedby]'),
   }));
   const desktopMetaEls = {
     title: document.querySelector('[data-desktop-video-title]'),
     description: document.querySelector('[data-desktop-video-description]'),
+    shotByRole: document.querySelector('[data-desktop-video-shotby-role]'),
     shotBy: document.querySelector('[data-desktop-video-shotby]'),
+    editedByRole: document.querySelector('[data-desktop-video-editedby-role]'),
     editedBy: document.querySelector('[data-desktop-video-editedby]'),
   };
   const audioToggle = document.querySelector('[data-audio-toggle]');
@@ -70,7 +74,9 @@ if (reelsFeed) {
   const metadataState = slides.map(() => ({
     title: 'Video',
     description: '',
+    shotByLabel: 'Riprese',
     shotBy: 'In aggiornamento',
+    editedByLabel: 'Editing',
     editedBy: 'In aggiornamento',
   }));
 
@@ -90,14 +96,25 @@ if (reelsFeed) {
 
     const titleMatch = matchField('title');
     const descriptionMatch = matchField('description');
+    const shotByLabelMatch = matchField('shot_by_label');
     const shotByMatch = matchField('shot_by');
+    const editedByLabelMatch = matchField('edited_by_label');
     const editedByMatch = matchField('edited_by');
 
-    if (titleMatch || descriptionMatch || shotByMatch || editedByMatch) {
+    if (
+      titleMatch ||
+      descriptionMatch ||
+      shotByLabelMatch ||
+      shotByMatch ||
+      editedByLabelMatch ||
+      editedByMatch
+    ) {
       return {
         title: (titleMatch?.[1] || 'Video').trim(),
         description: (descriptionMatch?.[1] || '').trim(),
+        shotByLabel: (shotByLabelMatch?.[1] || 'Riprese').trim(),
         shotBy: (shotByMatch?.[1] || 'In aggiornamento').trim(),
+        editedByLabel: (editedByLabelMatch?.[1] || 'Editing').trim(),
         editedBy: (editedByMatch?.[1] || 'In aggiornamento').trim(),
       };
     }
@@ -107,7 +124,9 @@ if (reelsFeed) {
       return {
         title: 'Video',
         description: '',
+        shotByLabel: 'Riprese',
         shotBy: 'In aggiornamento',
+        editedByLabel: 'Editing',
         editedBy: 'In aggiornamento',
       };
     }
@@ -118,7 +137,9 @@ if (reelsFeed) {
     return {
       title,
       description,
+      shotByLabel: 'Riprese',
       shotBy: 'In aggiornamento',
+      editedByLabel: 'Editing',
       editedBy: 'In aggiornamento',
     };
   };
@@ -136,8 +157,16 @@ if (reelsFeed) {
         meta.description || 'Nessuna descrizione disponibile per questo contenuto.';
     }
 
+    if (desktopMetaEls.shotByRole) {
+      desktopMetaEls.shotByRole.textContent = meta.shotByLabel || 'Riprese';
+    }
+
     if (desktopMetaEls.shotBy) {
       desktopMetaEls.shotBy.textContent = meta.shotBy || 'In aggiornamento';
+    }
+
+    if (desktopMetaEls.editedByRole) {
+      desktopMetaEls.editedByRole.textContent = meta.editedByLabel || 'Editing';
     }
 
     if (desktopMetaEls.editedBy) {
@@ -204,7 +233,9 @@ if (reelsFeed) {
       metadataState[index] = parsed;
       meta.titleEl.textContent = parsed.title || 'Video';
       meta.descEl.textContent = parsed.description || '';
+      if (meta.shotByRoleEl) meta.shotByRoleEl.textContent = parsed.shotByLabel || 'Riprese';
       if (meta.shotByEl) meta.shotByEl.textContent = parsed.shotBy || 'In aggiornamento';
+      if (meta.editedByRoleEl) meta.editedByRoleEl.textContent = parsed.editedByLabel || 'Editing';
       if (meta.editedByEl) meta.editedByEl.textContent = parsed.editedBy || 'In aggiornamento';
       metadataLoaded[index] = true;
       requestAnimationFrame(() => {
@@ -215,12 +246,16 @@ if (reelsFeed) {
       metadataState[index] = {
         title: 'Video',
         description: '',
+        shotByLabel: 'Riprese',
         shotBy: 'In aggiornamento',
+        editedByLabel: 'Editing',
         editedBy: 'In aggiornamento',
       };
       meta.titleEl.textContent = 'Video';
       meta.descEl.textContent = '';
+      if (meta.shotByRoleEl) meta.shotByRoleEl.textContent = 'Riprese';
       if (meta.shotByEl) meta.shotByEl.textContent = 'In aggiornamento';
+      if (meta.editedByRoleEl) meta.editedByRoleEl.textContent = 'Editing';
       if (meta.editedByEl) meta.editedByEl.textContent = 'In aggiornamento';
       meta.toggleEl.hidden = true;
       metadataLoaded[index] = true;
