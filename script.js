@@ -34,6 +34,7 @@ if (reelsFeed) {
   const slides = Array.from(reelsFeed.querySelectorAll('.reel-slide'));
   const videos = slides.map((slide) => slide.querySelector('.reel-video'));
   const feedbackOverlays = slides.map((slide) => slide.querySelector('[data-playback-feedback]'));
+  const videoIds = slides.map((slide, index) => slide.dataset.videoId || `video-${index + 1}`);
   const metaBlocks = slides.map((slide) => ({
     src: slide.dataset.metaSrc,
     titleEl: slide.querySelector('[data-video-title]'),
@@ -53,6 +54,8 @@ if (reelsFeed) {
     editedBy: document.querySelector('[data-desktop-video-editedby]'),
   };
   const audioToggle = document.querySelector('[data-audio-toggle]');
+  const copyVideoLinkButton = document.querySelector('[data-copy-video-link]');
+  const copyVideoLinkText = document.querySelector('[data-copy-video-link-text]');
   const scrollHint = document.querySelector('[data-scroll-hint]');
 
   let activeIndex = 0;
@@ -69,6 +72,7 @@ if (reelsFeed) {
   let hasUserStepped = false;
   let hintShowTimer = null;
   let hintHideTimer = null;
+  let copyFeedbackTimer = null;
   const expandedDescriptions = new Array(slides.length).fill(false);
   const metadataLoaded = new Array(slides.length).fill(false);
   const metadataState = slides.map(() => ({
@@ -81,6 +85,48 @@ if (reelsFeed) {
   }));
 
   const clampIndex = (index) => Math.max(0, Math.min(index, slides.length - 1));
+  const getVideoLink = (index = activeIndex) => {
+    const url = new URL(window.location.href);
+    url.searchParams.set('video', videoIds[clampIndex(index)]);
+    return url.toString();
+  };
+
+  const syncViewerUrl = (index = activeIndex) => {
+    const nextUrl = getVideoLink(index);
+    if (nextUrl !== window.location.href) {
+      window.history.replaceState(null, '', nextUrl);
+    }
+  };
+
+  const showCopyFeedback = (label) => {
+    if (!copyVideoLinkButton || !copyVideoLinkText) return;
+    if (copyFeedbackTimer) window.clearTimeout(copyFeedbackTimer);
+    copyVideoLinkButton.classList.add('is-copied');
+    copyVideoLinkText.textContent = label;
+    copyFeedbackTimer = window.setTimeout(() => {
+      copyVideoLinkButton.classList.remove('is-copied');
+      copyVideoLinkText.textContent = 'Copia link';
+    }, 1800);
+  };
+
+  const copyCurrentVideoLink = async () => {
+    const link = getVideoLink(activeIndex);
+    try {
+      await navigator.clipboard.writeText(link);
+      showCopyFeedback('Link copiato');
+    } catch (_error) {
+      const fallbackInput = document.createElement('input');
+      fallbackInput.value = link;
+      fallbackInput.setAttribute('readonly', '');
+      fallbackInput.style.position = 'absolute';
+      fallbackInput.style.left = '-9999px';
+      document.body.appendChild(fallbackInput);
+      fallbackInput.select();
+      const copied = document.execCommand('copy');
+      document.body.removeChild(fallbackInput);
+      showCopyFeedback(copied ? 'Link copiato' : 'Copia fallita');
+    }
+  };
 
   // Keep network usage light by prioritizing only current and next video.
   const updatePreload = () => {
@@ -426,6 +472,7 @@ if (reelsFeed) {
     updatePreload();
     collapseDescriptionsExcept(activeIndex);
     renderDesktopMetadata(activeIndex);
+    syncViewerUrl(activeIndex);
   };
 
   const stepTo = (step) => {
@@ -468,6 +515,7 @@ if (reelsFeed) {
 
       collapseDescriptionsExcept(activeIndex);
       renderDesktopMetadata(activeIndex);
+      syncViewerUrl(activeIndex);
       syncPlayback();
     },
     {
@@ -658,8 +706,16 @@ if (reelsFeed) {
     });
   }
 
+  if (copyVideoLinkButton) {
+    copyVideoLinkButton.addEventListener('click', () => {
+      copyCurrentVideoLink();
+    });
+  }
+
   updateAudioToggleUi();
-  goToIndex(0, false);
+  const initialVideoId = new URLSearchParams(window.location.search).get('video');
+  const initialIndex = initialVideoId ? videoIds.indexOf(initialVideoId) : 0;
+  goToIndex(initialIndex >= 0 ? initialIndex : 0, false);
   maybeShowScrollHint();
   renderDesktopMetadata(activeIndex);
   ensureActiveVideoPlays();

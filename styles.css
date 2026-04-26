@@ -463,6 +463,8 @@ h3 {
 
 .video-topbar-right {
   justify-content: flex-end;
+  gap: 10px;
+  width: auto;
 }
 
 .video-home {
@@ -480,6 +482,37 @@ h3 {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+}
+
+.video-link-copy {
+  pointer-events: auto;
+  min-height: 44px;
+  padding: 10px 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 999px;
+  color: #fff;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease;
+}
+
+.video-link-copy-icon {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+}
+
+.video-link-copy.is-copied {
+  background: rgba(137, 169, 150, 0.24);
+  border-color: rgba(137, 169, 150, 0.66);
 }
 
 .video-audio-toggle {
@@ -860,6 +893,7 @@ h3 {
   }
 
   .video-home,
+  .video-link-copy,
   .video-audio-toggle {
     background: rgba(0, 0, 0, 0.42);
     border-color: rgba(255, 255, 255, 0.26);
@@ -954,6 +988,26 @@ h3 {
   }
 
   .video-meta-overlay {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .video-topbar {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .video-topbar-right {
+    gap: 8px;
+  }
+
+  .video-link-copy {
+    min-width: 44px;
+    padding: 10px 12px;
+  }
+
+  .video-link-copy-text {
     display: none;
   }
 }
