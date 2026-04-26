@@ -75,7 +75,7 @@ if (reelsFeed) {
   let wheelDeltaAccumulator = 0;
   let lastWheelTime = 0;
   let viewportHeight = reelsFeed.clientHeight || window.innerHeight;
-  let isSoundOn = false;
+  let isSoundOn = true;
   let hasUserStepped = false;
   let hintShowTimer = null;
   let hintHideTimer = null;
