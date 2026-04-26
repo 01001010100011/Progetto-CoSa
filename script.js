@@ -44,6 +44,9 @@ if (reelsFeed) {
     shotByEl: slide.querySelector('[data-video-shotby]'),
     editedByRoleEl: slide.querySelector('[data-video-editedby-role]'),
     editedByEl: slide.querySelector('[data-video-editedby]'),
+    extraCreditEl: slide.querySelector('[data-video-extra-credit]'),
+    extraRoleEl: slide.querySelector('[data-video-extra-role]'),
+    extraNameEl: slide.querySelector('[data-video-extra-name]'),
   }));
   const desktopMetaEls = {
     title: document.querySelector('[data-desktop-video-title]'),
@@ -52,6 +55,9 @@ if (reelsFeed) {
     shotBy: document.querySelector('[data-desktop-video-shotby]'),
     editedByRole: document.querySelector('[data-desktop-video-editedby-role]'),
     editedBy: document.querySelector('[data-desktop-video-editedby]'),
+    extraCredit: document.querySelector('[data-desktop-video-extra-credit]'),
+    extraRole: document.querySelector('[data-desktop-video-extra-role]'),
+    extraName: document.querySelector('[data-desktop-video-extra-name]'),
   };
   const audioToggle = document.querySelector('[data-audio-toggle]');
   const copyVideoLinkButton = document.querySelector('[data-copy-video-link]');
@@ -82,6 +88,8 @@ if (reelsFeed) {
     shotBy: 'In aggiornamento',
     editedByLabel: 'Editing',
     editedBy: 'In aggiornamento',
+    extraCreditLabel: '',
+    extraCreditName: '',
   }));
 
   const clampIndex = (index) => Math.max(0, Math.min(index, slides.length - 1));
@@ -146,6 +154,8 @@ if (reelsFeed) {
     const shotByMatch = matchField('shot_by');
     const editedByLabelMatch = matchField('edited_by_label');
     const editedByMatch = matchField('edited_by');
+    const extraCreditLabelMatch = matchField('extra_credit_label');
+    const extraCreditNameMatch = matchField('extra_credit_name');
 
     if (
       titleMatch ||
@@ -153,7 +163,9 @@ if (reelsFeed) {
       shotByLabelMatch ||
       shotByMatch ||
       editedByLabelMatch ||
-      editedByMatch
+      editedByMatch ||
+      extraCreditLabelMatch ||
+      extraCreditNameMatch
     ) {
       return {
         title: (titleMatch?.[1] || 'Video').trim(),
@@ -162,6 +174,8 @@ if (reelsFeed) {
         shotBy: (shotByMatch?.[1] || 'In aggiornamento').trim(),
         editedByLabel: (editedByLabelMatch?.[1] || 'Editing').trim(),
         editedBy: (editedByMatch?.[1] || 'In aggiornamento').trim(),
+        extraCreditLabel: (extraCreditLabelMatch?.[1] || '').trim(),
+        extraCreditName: (extraCreditNameMatch?.[1] || '').trim(),
       };
     }
 
@@ -174,6 +188,8 @@ if (reelsFeed) {
         shotBy: 'In aggiornamento',
         editedByLabel: 'Editing',
         editedBy: 'In aggiornamento',
+        extraCreditLabel: '',
+        extraCreditName: '',
       };
     }
 
@@ -187,6 +203,8 @@ if (reelsFeed) {
       shotBy: 'In aggiornamento',
       editedByLabel: 'Editing',
       editedBy: 'In aggiornamento',
+      extraCreditLabel: '',
+      extraCreditName: '',
     };
   };
 
@@ -217,6 +235,13 @@ if (reelsFeed) {
 
     if (desktopMetaEls.editedBy) {
       desktopMetaEls.editedBy.textContent = meta.editedBy || 'In aggiornamento';
+    }
+
+    if (desktopMetaEls.extraCredit && desktopMetaEls.extraRole && desktopMetaEls.extraName) {
+      const hasExtraCredit = Boolean(meta.extraCreditLabel && meta.extraCreditName);
+      desktopMetaEls.extraCredit.hidden = !hasExtraCredit;
+      desktopMetaEls.extraRole.textContent = meta.extraCreditLabel || '';
+      desktopMetaEls.extraName.textContent = meta.extraCreditName || '';
     }
   };
 
@@ -283,6 +308,12 @@ if (reelsFeed) {
       if (meta.shotByEl) meta.shotByEl.textContent = parsed.shotBy || 'In aggiornamento';
       if (meta.editedByRoleEl) meta.editedByRoleEl.textContent = parsed.editedByLabel || 'Editing';
       if (meta.editedByEl) meta.editedByEl.textContent = parsed.editedBy || 'In aggiornamento';
+      if (meta.extraCreditEl && meta.extraRoleEl && meta.extraNameEl) {
+        const hasExtraCredit = Boolean(parsed.extraCreditLabel && parsed.extraCreditName);
+        meta.extraCreditEl.hidden = !hasExtraCredit;
+        meta.extraRoleEl.textContent = parsed.extraCreditLabel || '';
+        meta.extraNameEl.textContent = parsed.extraCreditName || '';
+      }
       metadataLoaded[index] = true;
       requestAnimationFrame(() => {
         updateMetaToggleVisibility(index);
@@ -296,6 +327,8 @@ if (reelsFeed) {
         shotBy: 'In aggiornamento',
         editedByLabel: 'Editing',
         editedBy: 'In aggiornamento',
+        extraCreditLabel: '',
+        extraCreditName: '',
       };
       meta.titleEl.textContent = 'Video';
       meta.descEl.textContent = '';
@@ -303,6 +336,11 @@ if (reelsFeed) {
       if (meta.shotByEl) meta.shotByEl.textContent = 'In aggiornamento';
       if (meta.editedByRoleEl) meta.editedByRoleEl.textContent = 'Editing';
       if (meta.editedByEl) meta.editedByEl.textContent = 'In aggiornamento';
+      if (meta.extraCreditEl && meta.extraRoleEl && meta.extraNameEl) {
+        meta.extraCreditEl.hidden = true;
+        meta.extraRoleEl.textContent = '';
+        meta.extraNameEl.textContent = '';
+      }
       meta.toggleEl.hidden = true;
       metadataLoaded[index] = true;
       if (index === activeIndex) renderDesktopMetadata(index);
