@@ -39,6 +39,7 @@ if (reelsFeed) {
     src: slide.dataset.metaSrc,
     titleEl: slide.querySelector('[data-video-title]'),
     descEl: slide.querySelector('[data-video-description]'),
+    descWrapEl: slide.querySelector('.video-meta-description-wrap'),
     toggleEl: slide.querySelector('[data-video-toggle]'),
     shotByRoleEl: slide.querySelector('[data-video-shotby-role]'),
     shotByEl: slide.querySelector('[data-video-shotby]'),
@@ -257,6 +258,8 @@ if (reelsFeed) {
     if (!hasOverflow) {
       expandedDescriptions[index] = false;
       meta.descEl.classList.remove('is-clamped', 'is-expanded');
+      meta.descWrapEl?.classList.remove('is-expanded');
+      meta.descWrapEl?.classList.add('is-collapsed');
       meta.toggleEl.hidden = true;
       return;
     }
@@ -265,11 +268,15 @@ if (reelsFeed) {
     if (wasExpanded) {
       meta.descEl.classList.remove('is-clamped');
       meta.descEl.classList.add('is-expanded');
+      meta.descWrapEl?.classList.add('is-expanded');
+      meta.descWrapEl?.classList.remove('is-collapsed');
       meta.toggleEl.textContent = 'MOSTRA MENO';
       meta.toggleEl.setAttribute('aria-label', 'Mostra meno descrizione');
     } else {
       meta.descEl.classList.add('is-clamped');
       meta.descEl.classList.remove('is-expanded');
+      meta.descWrapEl?.classList.remove('is-expanded');
+      meta.descWrapEl?.classList.add('is-collapsed');
       meta.toggleEl.textContent = 'MOSTRA ALTRO';
       meta.toggleEl.setAttribute('aria-label', 'Mostra descrizione completa');
     }
@@ -281,6 +288,8 @@ if (reelsFeed) {
     expandedDescriptions[index] = false;
     meta.descEl.classList.add('is-clamped');
     meta.descEl.classList.remove('is-expanded');
+    meta.descWrapEl?.classList.remove('is-expanded');
+    meta.descWrapEl?.classList.add('is-collapsed');
     updateMetaToggleVisibility(index);
   };
 
@@ -713,6 +722,8 @@ if (reelsFeed) {
       if (willExpand) {
         meta.descEl.classList.remove('is-clamped');
         meta.descEl.classList.add('is-expanded');
+        meta.descWrapEl?.classList.add('is-expanded');
+        meta.descWrapEl?.classList.remove('is-collapsed');
         meta.toggleEl.textContent = 'MOSTRA MENO';
         meta.toggleEl.setAttribute('aria-label', 'Mostra meno descrizione');
       } else {

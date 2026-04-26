@@ -650,6 +650,10 @@ h3 {
   color: rgba(255, 255, 255, 0.95);
 }
 
+.video-meta-description-wrap.is-collapsed .video-meta-credits {
+  display: none;
+}
+
 .video-meta-description {
   margin: 0;
   font-size: clamp(0.95rem, 1.8vw, 1.02rem);
@@ -1009,6 +1013,60 @@ h3 {
 
   .video-link-copy-text {
     display: none;
+  }
+
+  .video-meta-overlay {
+    padding: 0 12px calc(10px + env(safe-area-inset-bottom));
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0) 14%, rgba(0, 0, 0, 0.72) 78%);
+  }
+
+  .video-meta-inner {
+    max-width: min(560px, 88vw);
+    padding: 10px 12px 10px;
+    margin-bottom: 2px;
+    border-radius: 18px;
+    background: linear-gradient(180deg, rgba(18, 18, 18, 0.18) 0%, rgba(10, 10, 10, 0.48) 100%);
+  }
+
+  .video-meta-title {
+    font-size: 1rem;
+    line-height: 1.2;
+  }
+
+  .video-meta-description {
+    font-size: 0.88rem;
+    line-height: 1.35;
+  }
+
+  .video-meta-description.is-clamped {
+    -webkit-line-clamp: 1;
+  }
+
+  .video-meta-description-wrap.is-collapsed {
+    display: grid;
+    gap: 4px;
+  }
+
+  .video-meta-description-wrap.is-expanded {
+    display: grid;
+    gap: 10px;
+  }
+
+  .video-meta-description.is-expanded {
+    max-height: 42dvh;
+  }
+
+  .video-meta-credit-role {
+    font-size: 0.68rem;
+  }
+
+  .video-meta-credit-name {
+    font-size: 0.86rem;
+  }
+
+  .video-meta-toggle {
+    margin-top: 0;
+    font-size: 0.82rem;
   }
 }
 
